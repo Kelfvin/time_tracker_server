@@ -9,6 +9,10 @@ public class Result {
     private Integer code; //自己定义的状态码
     private String message;
 
+
+    // 加上Access-Control-Allow-Origin
+
+
     private Map<String, Object> data = new HashMap<String,Object>();
 
 

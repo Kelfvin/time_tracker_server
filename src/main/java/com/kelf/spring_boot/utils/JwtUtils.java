@@ -25,6 +25,18 @@ public class JwtUtils {
 
     }
 
+    // 检查token
+    public static boolean checkToken(String token) {
+        try {
+            Jwts.parser()
+                    .setSigningKey(sceret)
+                    .parseClaimsJws(token);
+        } catch (Exception e) {
+            return false;
+        }
+        return true;
+    }
+
     // 解析token
     public static Claims getClaimsByToken(String token) {
         Claims claims;

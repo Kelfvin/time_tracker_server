@@ -13,10 +13,19 @@ public class User {
     private String username;
     private String password;
 
-    private String avatarName;
+    private String avatar;
 
-    @TableField(exist = false)
-    private List<Order> orders;
+    @TableField(exist = false) // 不是数据库字段,要通过User表中的group_id字段来查找
+    private Group group;
+
+
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
 
     public String getUsername() {
         return username;
@@ -34,38 +43,19 @@ public class User {
         this.password = password;
     }
 
-    public String getAvatarName() {
-        return avatarName;
+    public String getAvatar() {
+        return avatar;
     }
 
-    public void setAvatarName(String avatarName) {
-        this.avatarName = avatarName;
+    public void setAvatar(String avatar) {
+        this.avatar = avatar;
     }
 
-    public int getId() {
-        return id;
+    public Group getGroup() {
+        return group;
     }
 
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public List<Order> getOrders() {
-        return orders;
-    }
-
-    public void setOrders(List<Order> orders) {
-        this.orders = orders;
-    }
-
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
-                ", password='" + password + '\'' +
-                ", avatarName='" + avatarName + '\'' +
-                ", orders=" + orders +
-                '}';
+    public void setGroup(Group group) {
+        this.group = group;
     }
 }

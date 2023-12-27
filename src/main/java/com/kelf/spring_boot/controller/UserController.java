@@ -19,9 +19,34 @@ public class UserController {
     private UserMapper userMapper;
 
 
+
+    /// 检查token
+    @ApiOperation("检查token")
+    @GetMapping("/checkToken")
+    public Result checkToken(String token) {
+        if (JwtUtils.checkToken(token)) {
+            return Result.ok();
+        } else {
+            return Result.error();
+        }
+    }
+
+
     @ApiOperation("登录")
+    @CrossOrigin(origins = "*", maxAge = 3600)
     @PostMapping("/login")
     public Result login(@RequestBody User user) {
+
+        User userSearched = userMapper.selectByUsername(user.getUsername());
+
+        System.out.println(userSearched);
+
+        // 判断用户名和密码
+        if (userSearched == null || !userSearched.getPassword().equals(user.getPassword())) {
+            return Result.error().message("用户名或密码错误");
+        }
+
+        // 生成token
         String token;
         token = JwtUtils.generateToken(user.getUsername());
         return Result.ok().data("token", token)
@@ -35,7 +60,7 @@ public class UserController {
         User user = userMapper.selectByUsername(username);
         return Result.ok().data("roles", new String[]{"admin"})
                 .data("name", user.getUsername())
-                .data("avatar", user.getAvatarName());
+                .data("avatar", user.getAvatar());
     }
 
 
@@ -45,13 +70,6 @@ public class UserController {
         return userMapper.getAllUser();
     }
 
-    @ApiOperation("添加用户")
-    @PostMapping("/")
-    public String insertUser(@RequestBody User user) {
-        userMapper.insert(user);
-        System.out.println(user.getId());
-        return "success";
-    }
 
 
 }

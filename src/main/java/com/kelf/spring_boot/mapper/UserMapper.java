@@ -10,18 +10,15 @@ import java.util.List;
 
 // 加上mapper注解，才能被spring扫描到
 @Mapper
-public interface UserMapper extends BaseMapper<User>
+public interface UserMapper
 {
-
     @Select("select * from user where username = #{username}")
     @Results(
             {
                     @Result(property = "id", column = "id"),
                     @Result(property = "username", column = "username"),
                     @Result(property = "password", column = "password"),
-                    @Result(property = "avatarName", column = "avatar_name"),
-                    @Result(property = "orders", column = "id", many = @Many(select = "com.kelf.spring_boot.mapper.OrderMapper.selectByUserId"))
-
+                    @Result(property = "avatar", column = "avatar"),
             }
     )
     User selectByUsername(String username);
@@ -32,8 +29,7 @@ public interface UserMapper extends BaseMapper<User>
                     @Result(property = "id", column = "id"),
                     @Result(property = "username", column = "username"),
                     @Result(property = "password", column = "password"),
-                    @Result(property = "avatarName", column = "avatar_name"),
-                    @Result(property = "orders", column = "id", many = @Many(select = "com.kelf.spring_boot.mapper.OrderMapper.selectByUserId"))
+                    @Result(property = "avatar", column = "avatar"),
 
             }
     )
@@ -46,9 +42,7 @@ public interface UserMapper extends BaseMapper<User>
                     @Result(property = "id", column = "id"),
                     @Result(property = "username", column = "username"),
                     @Result(property = "password", column = "password"),
-                    @Result(property = "avatarName", column = "avatar_name"),
-                    @Result(property = "orders", column = "id", many = @Many(select = "com.kelf.spring_boot.mapper.OrderMapper.selectByUserId"))
-
+                    @Result(property = "avatar", column = "avatar"),
             }
     )
     List<User> getAllUser();
