@@ -1,6 +1,9 @@
 package com.kelf.spring_boot.controller;
 
 
+import com.kelf.spring_boot.utils.Result;
+import io.swagger.annotations.ApiOperation;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -11,9 +14,10 @@ import java.io.File;
 import java.io.IOException;
 
 @RestController
+@RequestMapping("/file")
 public class FileUploadController {
-    @PostMapping
-    @RequestMapping("/upload")
+    @ApiOperation("上传文件")
+    @PostMapping("")
     public String upload(String username, MultipartFile avatar, HttpServletRequest request) {
         System.out.println(username);
         System.out.println(avatar.getOriginalFilename());
@@ -31,6 +35,7 @@ public class FileUploadController {
 
     }
 
+    @ApiOperation("保存文件")
     public void saveFile(MultipartFile file, String path) throws IOException {
         // 判断存储文件的文件夹是否存在，不存在则创建
         File folder = new File(path);
@@ -47,4 +52,9 @@ public class FileUploadController {
 
     }
 
+    @ApiOperation("查询文件")
+    @GetMapping("id") //根据user_idu获取头像文件
+    public Result findFile(){
+        return Result.ok();
+    }
 }

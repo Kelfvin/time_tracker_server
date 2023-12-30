@@ -21,7 +21,7 @@ public interface RecordMapper {
                     @Result(property = "startTime", column = "start_timestamp"),
                     @Result(property = "endTime", column = "end_timestamp"),
                     @Result(property = "action", column = "action_id",
-                            one = @One(select = "com.kelf.spring_boot.mapper.ActionMapper.selectById")),
+                            one = @One(select = "com.kelf.spring_boot.mapper.EventMapper.selectById")),
                     @Result(property = "user", column = "user_id",
                             one = @One(select = "com.kelf.spring_boot.mapper.UserMapper.selectById"))
             }
@@ -37,7 +37,7 @@ public interface RecordMapper {
                     @Result(property = "startTime", column = "start_timestamp"),
                     @Result(property = "endTime", column = "end_timestamp"),
                     @Result(property = "action", column = "action_id",
-                            one = @One(select = "com.kelf.spring_boot.mapper.ActionMapper.selectById")),
+                            one = @One(select = "com.kelf.spring_boot.mapper.EventMapper.selectById")),
                     @Result(property = "user", column = "user_id",
                             one = @One(select = "com.kelf.spring_boot.mapper.UserMapper.selectById"))
             }

@@ -17,7 +17,7 @@ public interface CategoryMapper {
                     @Result(property = "color", column = "color"),
                     @Result(property = "userId", column = "user_id"),
                     @Result(property = "actions", column = "id",
-                            many = @Many(select = "com.kelf.spring_boot.mapper.ActionMapper.selectByCategoryId"))
+                            many = @Many(select = "com.kelf.spring_boot.mapper.EventMapper.selectByCategoryId"))
             }
     )
     List<Category> getAllCategoryByUserId(int userId);

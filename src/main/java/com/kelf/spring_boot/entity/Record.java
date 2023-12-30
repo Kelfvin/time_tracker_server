@@ -1,17 +1,22 @@
 package com.kelf.spring_boot.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.time.LocalDateTime;
 
+@TableName("record")
 public class Record {
+    @TableId(type = IdType.AUTO)
     private int id;
     private LocalDateTime startTime;
     private LocalDateTime endTime;
     private String mark;
 
     @TableField(exist = false)
-    private Action action;
+    private Event event;
 
     @TableField(exist = false)
     private User user;
@@ -48,12 +53,12 @@ public class Record {
         this.mark = mark;
     }
 
-    public Action getAction() {
-        return action;
+    public Event getAction() {
+        return event;
     }
 
-    public void setAction(Action action) {
-        this.action = action;
+    public void setAction(Event event) {
+        this.event = event;
     }
 
     public User getUser() {

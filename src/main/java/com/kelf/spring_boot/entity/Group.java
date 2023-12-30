@@ -1,9 +1,11 @@
 package com.kelf.spring_boot.entity;
 
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.util.List;
 
+@TableName("group")
 public class Group {
     private int id;
     private String name;

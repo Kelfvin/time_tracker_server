@@ -89,5 +89,20 @@ public class UserController {
 
 
 
+    @ApiOperation("更新用户信息")
+    @PutMapping("")
+    public Result update(User user){
+        return Result.ok();
+    }
+
+    @ApiOperation("删除用户")
+    @DeleteMapping("")
+    public Result deleteUser(User user){
+        return Result.ok();
+    }
+
+
+
+
 }
 

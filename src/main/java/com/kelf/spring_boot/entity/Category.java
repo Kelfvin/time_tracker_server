@@ -1,17 +1,54 @@
 package com.kelf.spring_boot.entity;
 
+import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
+import com.baomidou.mybatisplus.annotation.TableId;
+import com.baomidou.mybatisplus.annotation.TableName;
 
 import java.util.List;
 
+@TableName("category")
 public class Category {
 
+        @TableId(type = IdType.AUTO)
         private int id;
         private String name;
 
         @TableField(exist = false)
-        private User user;
+        private User user; //user_id
 
         @TableField(exist = false)
-        private List<Action> actions;
+        private List<Event> events;
+
+        public int getId() {
+                return id;
+        }
+
+        public void setId(int id) {
+                this.id = id;
+        }
+
+        public String getName() {
+                return name;
+        }
+
+        public void setName(String name) {
+                this.name = name;
+        }
+
+        public User getUser() {
+                return user;
+        }
+
+        public void setUser(User user) {
+                this.user = user;
+        }
+
+        public List<Event> getActions() {
+                return events;
+        }
+
+        public void setActions(List<Event> events) {
+                this.events = events;
+        }
 }
