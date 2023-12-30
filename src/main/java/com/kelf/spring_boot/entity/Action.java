@@ -7,9 +7,16 @@ public class Action {
     private int id;
     private String name;
 
+
+    int color;
+
+    private int categoryId;
+
+    private int userId;
+
     @TableField(exist = false)
     private Category category;
-    private int color;
+
 
     @TableField(exist = false)
     private User user;

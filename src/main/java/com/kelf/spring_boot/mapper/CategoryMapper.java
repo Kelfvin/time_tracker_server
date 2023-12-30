@@ -2,11 +2,7 @@ package com.kelf.spring_boot.mapper;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.kelf.spring_boot.entity.Category;
-import org.apache.ibatis.annotations.Many;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Result;
-import org.apache.ibatis.annotations.Results;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
@@ -24,7 +20,11 @@ public interface CategoryMapper {
                             many = @Many(select = "com.kelf.spring_boot.mapper.ActionMapper.selectByCategoryId"))
             }
     )
-    public List<Category> getAllCategoryByUserId(int userId);
+    List<Category> getAllCategoryByUserId(int userId);
 
+
+    // 增加分类
+    @Insert("insert into category (name, color, user_id) values (#{name}, #{color}, #{user_id})")
+    void addCategory(int user_id, Category category);
 
 }

@@ -46,4 +46,19 @@ public interface UserMapper
             }
     )
     List<User> getAllUser();
+
+    @Select("select * from user where group_id = #{groupId}")
+    @Results(
+            {
+                    @Result(property = "id", column = "id"),
+                    @Result(property = "username", column = "username"),
+                    @Result(property = "password", column = "password"),
+                    @Result(property = "avatar", column = "avatar"),
+            }
+    )
+    List<User> selectByGroupId(int groupId);
+
+
+    @Insert("insert into user(username, password, avatar) values(#{username}, #{password}, #{avatar})")
+    void insert(User user);
 }

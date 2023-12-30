@@ -20,20 +20,23 @@ public class UserController {
 
 
 
-    /// 检查token
-    @ApiOperation("检查token")
-    @GetMapping("/checkToken")
-    public Result checkToken(String token) {
-        if (JwtUtils.checkToken(token)) {
-            return Result.ok();
-        } else {
-            return Result.error();
+    /// 检查登录
+    @ApiOperation("检查登录")
+    @GetMapping("/checkLogin")
+    public Result checkLogin(String token) {
+        if (token == null) {
+            return Result.error().message("未登录");
         }
+        String username = JwtUtils.getClaimsByToken(token).getSubject();
+        User user = userMapper.selectByUsername(username);
+        if (user == null) {
+            return Result.error().message("未登录");
+        }
+        return Result.ok().data("username", username);
     }
 
 
     @ApiOperation("登录")
-    @CrossOrigin(origins = "*", maxAge = 3600)
     @PostMapping("/login")
     public Result login(@RequestBody User user) {
 
@@ -61,6 +64,20 @@ public class UserController {
         return Result.ok().data("roles", new String[]{"admin"})
                 .data("name", user.getUsername())
                 .data("avatar", user.getAvatar());
+    }
+
+    // 用户注册
+    @ApiOperation("用户注册")
+    @PostMapping("/register")
+    public Result register(@RequestBody User user) {
+        // 先判断用户名是否已经存在
+        User userSearched = userMapper.selectByUsername(user.getUsername());
+        if (userSearched != null) {
+            return Result.error().message("用户名已存在");
+        }
+        // 插入用户
+        userMapper.insert(user);
+        return Result.ok();
     }
 
 
