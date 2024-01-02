@@ -86,8 +86,9 @@ public class UserController {
 
     @ApiOperation("获取所有用户信息")
     @GetMapping("/findAll")
-    public List<User> getAllUser() {
-        return userMapper.getAllUser();
+    public Result getAllUser() {
+
+        return Result.ok().data("users",userMapper.getAllUser());
     }
 
 

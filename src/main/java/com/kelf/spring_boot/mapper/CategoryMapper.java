@@ -1,10 +1,13 @@
 package com.kelf.spring_boot.mapper;
 
+import com.baomidou.mybatisplus.annotation.TableName;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.kelf.spring_boot.entity.Category;
 import org.apache.ibatis.annotations.*;
 
 import java.util.List;
+
+
 
 @Mapper
 public interface CategoryMapper {
@@ -24,7 +27,7 @@ public interface CategoryMapper {
 
 
     // 增加分类
-    @Insert("insert into category (name, color, user_id) values (#{name}, #{color}, #{user_id})")
+    @Insert("insert into category (name,color,user_id) values (#{category.name}, #{category.color}, #{user_id})")
     void addCategory(int user_id, Category category);
 
     //获得分类

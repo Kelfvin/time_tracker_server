@@ -14,8 +14,30 @@ public class Category {
         private int id;
         private String name;
 
+        private int color;
+
+        private int user_id;
+
+        public int getUser_id() {
+                return user_id;
+        }
+
+        public void setUser_id(int user_id) {
+                this.user_id = user_id;
+        }
+
+        public int getColor() {
+                return color;
+        }
+
+        public void setColor(int color) {
+                this.color = color;
+        }
+
+
+
         @TableField(exist = false)
-        private User user; //user_id
+        private User user;
 
         @TableField(exist = false)
         private List<Event> events;
