@@ -2,11 +2,7 @@ package com.kelf.spring_boot.mapper;
 
 
 import com.kelf.spring_boot.entity.Record;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.One;
-import org.apache.ibatis.annotations.Result;
-import org.apache.ibatis.annotations.Results;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
@@ -45,6 +41,18 @@ public interface RecordMapper {
     public List<Record> getRecordByDate(int userId, String date);
 
 
+    //增加Record
+    @Insert("INSERT INTO record(start_timestamp, end_timestamp, mark, event_id, user_id) VALUES(#{startTimestamp}, #{endTimestamp}, #{mark}, #{eventId}, #{userId})")
+    @Options(useGeneratedKeys = true, keyProperty = "id")
+    void addRecord(Record record);
+
+    // 更新Record
+    @Update("UPDATE record SET start_timestamp = #{startTimestamp}, end_timestamp = #{endTimestamp}, mark = #{mark}, event_id = #{eventId}, user_id = #{userId} WHERE id = #{id}")
+    void updateRecord(Record record);
+
+    //删除Record
+    @Delete("DELETE FROM record WHERE id = #{id}")
+    void deleteRecord(int id);
 
 
 }

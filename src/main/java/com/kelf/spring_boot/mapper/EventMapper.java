@@ -2,18 +2,14 @@ package com.kelf.spring_boot.mapper;
 
 
 import com.kelf.spring_boot.entity.Event;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.One;
-import org.apache.ibatis.annotations.Result;
-import org.apache.ibatis.annotations.Results;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 import java.util.List;
 
 @Mapper
 public interface EventMapper {
 
-    @Select("select * from action where id = #{id}")
+    @Select("select * from event where id = #{id}")
     @Results(
             {
                     @Result(property = "id", column = "id"),
@@ -29,7 +25,7 @@ public interface EventMapper {
     )
     Event selectById(int id);
 
-    @Select("select * from action where category_id = #{categoryId}")
+    @Select("select * from event where category_id = #{categoryId}")
     @Results(
             {
                     @Result(property = "id", column = "id"),
@@ -42,6 +38,26 @@ public interface EventMapper {
             }
     )
     List<Event> selectByCategoryId(int categoryId);
+
+//    //获取所有事件
+//    @Select("SELECT * FROM event")
+//    List<Event> getAllEvents();
+
+    //增加事件
+    @Insert("INSERT INTO event (name, color, category_id, user_id) " +
+            "VALUES (#{event.name}, #{event.color}, #{event.categoryId}, #{event.userId})")
+    @Options(useGeneratedKeys = true, keyColumn = "id", keyProperty = "event.id")
+    void addEvent(@Param("event") Event event);
+
+    //更新事件
+    @Update("UPDATE event SET name = #{name}, color = #{color}, category_id = #{categoryId}, user_id = #{userId} WHERE id = #{id}")
+    void updateEvent(Event event);
+
+    //删除事件
+    @Delete("DELETE FROM event WHERE id = #{id}")
+    void deleteEvent(int id);
+
+
 
 
 }

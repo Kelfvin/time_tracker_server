@@ -16,7 +16,7 @@ public interface CategoryMapper {
                     @Result(property = "name", column = "name"),
                     @Result(property = "color", column = "color"),
                     @Result(property = "userId", column = "user_id"),
-                    @Result(property = "actions", column = "id",
+                    @Result(property = "events", column = "id",
                             many = @Many(select = "com.kelf.spring_boot.mapper.EventMapper.selectByCategoryId"))
             }
     )
@@ -26,5 +26,17 @@ public interface CategoryMapper {
     // 增加分类
     @Insert("insert into category (name, color, user_id) values (#{name}, #{color}, #{user_id})")
     void addCategory(int user_id, Category category);
+
+    //获得分类
+    @Select("SELECT * FROM category WHERE id = #{id}")
+    Category getCategoryById(int id);
+
+    //更新分类
+    @Update("UPDATE category SET name = #{name}, color = #{color}, user_id = #{userId} WHERE id = #{id}")
+    void updateCategory(Category category);
+
+    //删除分类
+    @Delete("DELETE FROM category WHERE id = #{id}")
+    void deleteCategory(int id);
 
 }

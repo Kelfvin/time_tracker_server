@@ -44,11 +44,11 @@ public class Category {
                 this.user = user;
         }
 
-        public List<Event> getActions() {
+        public List<Event> getEvents() {
                 return events;
         }
 
-        public void setActions(List<Event> events) {
+        public void setEvents(List<Event> events) {
                 this.events = events;
         }
 }

@@ -15,8 +15,11 @@ import java.util.List;
 @RequestMapping("/user")
 public class UserController {
 
+    private final UserMapper userMapper;
     @Autowired
-    private UserMapper userMapper;
+    public UserController(UserMapper userMapper) {
+        this.userMapper = userMapper;
+    }
 
 
 
@@ -91,13 +94,24 @@ public class UserController {
 
     @ApiOperation("更新用户信息")
     @PutMapping("")
-    public Result update(User user){
+    public Result update(@RequestBody User user){
+        //先简单定义一个
+        try {
+            userMapper.updateUser(user);
+        }catch(Exception e){
+            return Result.error().message(e.getMessage());
+        }
         return Result.ok();
     }
 
     @ApiOperation("删除用户")
     @DeleteMapping("")
-    public Result deleteUser(User user){
+    public Result deleteUser(@RequestBody User user){
+        try{
+            userMapper.deleteUser(user.getId());
+        }catch(Exception e){
+            return Result.error().message(e.getMessage());
+        }
         return Result.ok();
     }
 

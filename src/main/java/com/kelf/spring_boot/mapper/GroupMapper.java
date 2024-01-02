@@ -2,11 +2,7 @@ package com.kelf.spring_boot.mapper;
 
 
 import com.kelf.spring_boot.entity.Group;
-import org.apache.ibatis.annotations.Many;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Result;
-import org.apache.ibatis.annotations.Results;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
 
 @Mapper
 public interface GroupMapper {
@@ -23,6 +19,22 @@ public interface GroupMapper {
             }
     )
     Group selectByUserId(int userId);
+
+    //根据Id获取Group
+    @Select("SELECT * FROM group WHERE id = #{id}")
+    Group getGroupById(int id);
+
+    //添加分组
+    @Insert("INSERT INTO group(id, name) VALUES(#{id}, #{name})")
+    void addGroup(Group group);
+
+    //更新分组
+    @Update("UPDATE group SET name = #{name} WHERE id = #{id}")
+    void updateGroup(Group group);
+
+    //删除分组
+    @Delete("DELETE FROM group WHERE id = #{id}")
+    void deleteGroup(int id);
 
 
 

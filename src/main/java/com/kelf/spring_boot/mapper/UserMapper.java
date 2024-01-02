@@ -61,4 +61,12 @@ public interface UserMapper
 
     @Insert("insert into user(username, password, avatar) values(#{username}, #{password}, #{avatar})")
     void insert(User user);
+
+    //更新用户
+    @Update("UPDATE user SET username = #{username}, password = #{password}, avatar = #{avatar}, group_id = #{groupId} WHERE id = #{id}")
+    void updateUser(User user);
+
+    //删除用户
+    @Delete("DELETE FROM user WHERE id = #{id}")
+    void deleteUser(int id);
 }
