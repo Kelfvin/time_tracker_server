@@ -30,6 +30,7 @@ public interface CategoryMapper {
     @Insert("insert into category (name,color,user_id) values (#{category.name}, #{category.color}, #{user_id})")
     void addCategory(int user_id, Category category);
 
+
     //获得分类
     @Select("SELECT * FROM category WHERE id = #{id}")
     @Results({

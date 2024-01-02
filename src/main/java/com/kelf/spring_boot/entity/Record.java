@@ -12,10 +12,29 @@ import java.time.LocalDateTime;
 public class Record {
     @TableId(type = IdType.AUTO)
     private int id;
-    private Timestamp startTime;
-    private Timestamp endTime;
-    private String mark;
+    private LocalDateTime startTime;
+    private LocalDateTime endTime;
+    private String mark = null;
 
+    private int userId;
+
+    public int getUserId() {
+        return userId;
+    }
+
+    public void setUserId(int userId) {
+        this.userId = userId;
+    }
+
+    public int getEventId() {
+        return eventId;
+    }
+
+    public void setEventId(int eventId) {
+        this.eventId = eventId;
+    }
+
+    private int eventId;
     @TableField(exist = false)
     private Event event;
 
@@ -30,19 +49,19 @@ public class Record {
         this.id = id;
     }
 
-    public Timestamp getStartTime() {
+    public LocalDateTime getStartTime() {
         return startTime;
     }
 
-    public void setStartTime(Timestamp startTime) {
+    public void setStartTime(LocalDateTime startTime) {
         this.startTime = startTime;
     }
 
-    public Timestamp getEndTime() {
+    public LocalDateTime getEndTime() {
         return endTime;
     }
 
-    public void setEndTime(Timestamp endTime) {
+    public void setEndTime(LocalDateTime endTime) {
         this.endTime = endTime;
     }
 
@@ -54,11 +73,11 @@ public class Record {
         this.mark = mark;
     }
 
-    public Event getAction() {
+    public Event getEvent() {
         return event;
     }
 
-    public void setAction(Event event) {
+    public void setEvent(Event event) {
         this.event = event;
     }
 
@@ -69,4 +88,7 @@ public class Record {
     public void setUser(User user) {
         this.user = user;
     }
+
+
+
 }
