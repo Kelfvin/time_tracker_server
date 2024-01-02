@@ -37,8 +37,7 @@ public interface CategoryMapper {
             @Result(property = "name", column = "name"),
             @Result(property = "color", column = "color"),
 //            @Result(property = "userId", column = "user_id"),
-            @Result(property = "user" , column = "user_id",
-                    one = @One(select = "com.kelf.spring_boot.mapper.UserMapper.selectById")),
+            @Result(property = "userId" , column = "user_id"),
             @Result(property = "events", column = "id",
                     many = @Many(select = "com.kelf.spring_boot.mapper.EventMapper.selectByCategoryId"))
     })

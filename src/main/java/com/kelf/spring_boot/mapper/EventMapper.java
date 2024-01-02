@@ -31,10 +31,8 @@ public interface EventMapper {
                     @Result(property = "id", column = "id"),
                     @Result(property = "name", column = "name"),
                     @Result(property = "color", column = "color"),
-                    @Result(property = "category", column = "category_id",
-                            one = @One(select = "com.kelf.spring_boot.mapper.CategoryMapper.getCategoryById")),
-                    @Result(property = "user", column = "user_id",
-                            one = @One(select = "com.kelf.spring_boot.mapper.UserMapper.selectById"))
+                    @Result(property = "categoryId", column = "category_id"),
+                    @Result(property = "userId", column = "user_id")
             }
     )
     List<Event> selectByCategoryId(int categoryId);
@@ -45,10 +43,8 @@ public interface EventMapper {
             @Result(property = "id", column = "id"),
             @Result(property = "name", column = "name"),
             @Result(property = "color", column = "color"),
-            @Result(property = "category", column = "category_id",
-                    one = @One(select = "com.kelf.spring_boot.mapper.CategoryMapper.getCategoryById")),
-            @Result(property = "user", column = "user_id",
-                    one = @One(select = "com.kelf.spring_boot.mapper.UserMapper.selectById"))
+            @Result(property = "categoryId", column = "category_id"),
+            @Result(property = "userId", column = "user_id")
     })
     List<Event> getEventsByUserId(int userId);
 
@@ -67,6 +63,13 @@ public interface EventMapper {
     void deleteEvent(int id);
 
 
+    //根据事件id获得事件的用户id
+    @Select("select user_id from event where id = #{eventId}")
+    int getUserIdByEventId(int eventId);
+
+    //根据事件id获得事件
+    @Select("select * from event where id = #{eventId}")
+    Event getEventById(int eventId);
 
 
 }
