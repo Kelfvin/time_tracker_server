@@ -12,7 +12,7 @@ import java.util.List;
 @Mapper
 public interface CategoryMapper {
     // 获取用户的所有分类
-    @Select("select * from category where id = #{userId}")
+    @Select("select * from category where user_id = #{userId}")
     @Results(
             {
                     @Result(property = "id", column = "id"),
@@ -32,6 +32,16 @@ public interface CategoryMapper {
 
     //获得分类
     @Select("SELECT * FROM category WHERE id = #{id}")
+    @Results({
+            @Result(property = "id", column = "id"),
+            @Result(property = "name", column = "name"),
+            @Result(property = "color", column = "color"),
+//            @Result(property = "userId", column = "user_id"),
+            @Result(property = "user" , column = "user_id",
+                    one = @One(select = "com.kelf.spring_boot.mapper.UserMapper.selectById")),
+            @Result(property = "events", column = "id",
+                    many = @Many(select = "com.kelf.spring_boot.mapper.EventMapper.selectByCategoryId"))
+    })
     Category getCategoryById(int id);
 
     //更新分类
