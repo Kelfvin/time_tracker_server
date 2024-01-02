@@ -32,16 +32,25 @@ public interface EventMapper {
                     @Result(property = "name", column = "name"),
                     @Result(property = "color", column = "color"),
                     @Result(property = "category", column = "category_id",
-                            one = @One(select = "com.kelf.spring_boot.mapper.CategoryMapper.selectById")),
+                            one = @One(select = "com.kelf.spring_boot.mapper.CategoryMapper.getCategoryById")),
                     @Result(property = "user", column = "user_id",
                             one = @One(select = "com.kelf.spring_boot.mapper.UserMapper.selectById"))
             }
     )
     List<Event> selectByCategoryId(int categoryId);
 
-//    //获取所有事件
-//    @Select("SELECT * FROM event")
-//    List<Event> getAllEvents();
+    //根据用户名username获取所有事件
+    @Select("select * from event where user_id = #{userId}")
+    @Results({
+            @Result(property = "id", column = "id"),
+            @Result(property = "name", column = "name"),
+            @Result(property = "color", column = "color"),
+            @Result(property = "category", column = "category_id",
+                    one = @One(select = "com.kelf.spring_boot.mapper.CategoryMapper.getCategoryById")),
+            @Result(property = "user", column = "user_id",
+                    one = @One(select = "com.kelf.spring_boot.mapper.UserMapper.selectById"))
+    })
+    List<Event> getEventsByUserId(int userId);
 
     //增加事件
     @Insert("INSERT INTO event (name, color, category_id, user_id) " +

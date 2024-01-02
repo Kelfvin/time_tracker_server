@@ -14,7 +14,7 @@ public class Category {
         private int id;
         private String name;
 
-        private int color;
+        private String color;
 
         private int userId;
 
@@ -26,11 +26,11 @@ public class Category {
                 this.userId = userId;
         }
 
-        public int getColor() {
+        public String getColor() {
                 return color;
         }
 
-        public void setColor(int color) {
+        public void setColor(String color) {
                 this.color = color;
         }
 

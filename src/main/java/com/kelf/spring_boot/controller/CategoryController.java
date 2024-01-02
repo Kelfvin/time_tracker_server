@@ -88,7 +88,7 @@ public class CategoryController {
 
     @ApiOperation("根据token查询分类")
     @GetMapping("/user")
-    public Result selectByID(@RequestBody Map<String, Object> requestBody){
+    public Result selectById(@RequestBody Map<String, Object> requestBody){
         String token = (String) requestBody.get("token");
 //        return Result.ok().data("test",token);
 

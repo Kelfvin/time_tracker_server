@@ -12,7 +12,7 @@ public class Event {
     private int id;
     private String name;
 
-    int color;
+    private String color;
 
     private int categoryId;
 
@@ -42,11 +42,11 @@ public class Event {
         this.name = name;
     }
 
-    public int getColor() {
+    public String getColor() {
         return color;
     }
 
-    public void setColor(int color) {
+    public void setColor(String color) {
         this.color = color;
     }
 
