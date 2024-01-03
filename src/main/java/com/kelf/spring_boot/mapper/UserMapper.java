@@ -19,6 +19,7 @@ public interface UserMapper
                     @Result(property = "username", column = "username"),
                     @Result(property = "password", column = "password"),
                     @Result(property = "avatar", column = "avatar"),
+                    @Result(property = "groupId", column = "group_id"),
             }
     )
     User selectByUsername(String username);
@@ -30,6 +31,7 @@ public interface UserMapper
                     @Result(property = "username", column = "username"),
                     @Result(property = "password", column = "password"),
                     @Result(property = "avatar", column = "avatar"),
+                    @Result(property = "groupId", column = "group_id"),
 
             }
     )
@@ -43,6 +45,7 @@ public interface UserMapper
                     @Result(property = "username", column = "username"),
                     @Result(property = "password", column = "password"),
                     @Result(property = "avatar", column = "avatar"),
+                    @Result(property = "groupId", column = "group_id"),
             }
     )
     List<User> getAllUser();
@@ -54,6 +57,7 @@ public interface UserMapper
                     @Result(property = "username", column = "username"),
                     @Result(property = "password", column = "password"),
                     @Result(property = "avatar", column = "avatar"),
+                    @Result(property = "groupId", column = "group_id"),
             }
     )
     List<User> selectByGroupId(int groupId);

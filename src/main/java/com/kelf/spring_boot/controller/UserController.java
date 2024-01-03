@@ -7,8 +7,13 @@ import com.kelf.spring_boot.utils.Result;
 import io.jsonwebtoken.Jwt;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -16,12 +21,19 @@ import java.util.List;
 public class UserController {
 
     private final UserMapper userMapper;
+
+
+    // 根据是Windows还是Linux系统，设置不同的文件上传路径
+    @Value("${upload.windows.path}")
+    String windowsUploadPath;
+
+    @Value("${upload.linux.path}")
+    String linuxUploadPath;
+
     @Autowired
     public UserController(UserMapper userMapper) {
         this.userMapper = userMapper;
     }
-
-
 
     /// 检查登录
     @ApiOperation("检查登录")
@@ -116,7 +128,86 @@ public class UserController {
         return Result.ok();
     }
 
+    // 修改头像
+    @ApiOperation("修改头像")
 
+    @PutMapping("/updateAvatar")
+public Result updateAvatar(String token, MultipartFile avatar) {
+
+        // 文件检验
+        if (avatar == null) {
+            return Result.error().message("文件不能为空");
+        }
+        if (avatar.getSize() > 1024 * 1024 * 5) {
+            return Result.error().message("文件不能大于5M");
+        }
+
+        // 文件的类型检验，必须是图片
+        String contentType = avatar.getContentType();
+
+        if (!contentType.equals("image/jpeg") && !contentType.equals("image/png")) {
+            return Result.error().message("文件格式不正确");
+        }
+
+
+        // 获取用户名
+        String username = JwtUtils.getClaimsByToken(token).getSubject();
+        User user = userMapper.selectByUsername(username);
+
+        // filename 是用户id+原始文件名后缀
+        String fileName = user.getId() + avatar.getOriginalFilename().substring(avatar.getOriginalFilename().lastIndexOf("."));
+
+
+        // 保存文件
+        // 看是Windows还是Linux系统
+        String os = System.getProperty("os.name");
+
+        if (os.toLowerCase().startsWith("win")) {
+            // Windows系统
+            try {
+                saveFile(avatar, windowsUploadPath,fileName);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return Result.error().message("文件保存失败");
+            }
+        } else {
+            // Linux系统
+            try {
+                saveFile(avatar, linuxUploadPath,fileName);
+            } catch (Exception e) {
+                e.printStackTrace();
+                return Result.error().message("文件保存失败");
+            }
+        }
+
+        // 更新用户头像
+        user.setAvatar("/upload/" + fileName);
+
+
+        userMapper.updateUser(user);
+
+        return Result.ok().data("avatar", user.getAvatar());
+
+    }
+
+    @ApiOperation("保存文件")
+    public void saveFile(MultipartFile file, String path,String fileName) throws IOException {
+        // 判断存储文件的文件夹是否存在，不存在则创建
+        File folder = new File(path);
+        if (!folder.exists()) {
+            folder.mkdirs();
+        }
+
+        // 保存文件
+        // 如果原始文件名存在是否会覆盖？
+        // 会覆盖
+        try {
+            file.transferTo(new File(path, fileName));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
+    }
 
 
 }
