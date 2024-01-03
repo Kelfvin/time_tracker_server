@@ -51,6 +51,29 @@ public class UserController {
         return Result.ok().data("username", username);
     }
 
+    /// 通过token进行登录
+    @ApiOperation("通过token进行登录")
+    @GetMapping("/loginByToken")
+    public Result loginByToken(String token) {
+        if (token == null) {
+            return Result.error().message("未登录");
+        }
+        String username = JwtUtils.getClaimsByToken(token).getSubject();
+        User user = userMapper.selectByUsername(username);
+        if (user == null) {
+            return Result.error().message("未登录");
+        }
+
+        // 查询用户信息
+        User userSearched = userMapper.selectByUsername(username);
+        // 清除密码
+        userSearched.setPassword(null);
+
+        return Result.ok().data("user", userSearched);
+    }
+
+
+
 
     @ApiOperation("登录")
     @PostMapping("/login")
@@ -68,8 +91,15 @@ public class UserController {
         // 生成token
         String token;
         token = JwtUtils.generateToken(user.getUsername());
+
+
+
+        // 清除密码
+        userSearched.setPassword(null);
+        // 防止返回泄密
+
         return Result.ok().data("token", token)
-                .data("username", user.getUsername());
+                .data("user", userSearched);
     }
 
     @ApiOperation("获取用户信息")
@@ -163,10 +193,12 @@ public Result updateAvatar(String token, MultipartFile avatar) {
         // 看是Windows还是Linux系统
         String os = System.getProperty("os.name");
 
+        String tagretAvatarName = null;
+
         if (os.toLowerCase().startsWith("win")) {
             // Windows系统
             try {
-                FileUtils.saveFile(avatar, windowsUploadPath,fileName);
+                tagretAvatarName =  FileUtils.saveAvatar (avatar, windowsUploadPath,fileName);
             } catch (Exception e) {
                 e.printStackTrace();
                 return Result.error().message("文件保存失败");
@@ -174,7 +206,7 @@ public Result updateAvatar(String token, MultipartFile avatar) {
         } else {
             // Linux系统
             try {
-                FileUtils.saveFile(avatar, linuxUploadPath,fileName);
+                tagretAvatarName  =  FileUtils.saveAvatar(avatar, linuxUploadPath,fileName);
             } catch (Exception e) {
                 e.printStackTrace();
                 return Result.error().message("文件保存失败");
@@ -182,7 +214,7 @@ public Result updateAvatar(String token, MultipartFile avatar) {
         }
 
         // 更新用户头像
-        user.setAvatar("/upload/" + fileName);
+        user.setAvatar("/file/" + tagretAvatarName);
 
 
         userMapper.updateUser(user);
