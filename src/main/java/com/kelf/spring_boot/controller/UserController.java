@@ -2,6 +2,7 @@ package com.kelf.spring_boot.controller;
 
 import com.kelf.spring_boot.entity.User;
 import com.kelf.spring_boot.mapper.UserMapper;
+import com.kelf.spring_boot.utils.FileUtils;
 import com.kelf.spring_boot.utils.JwtUtils;
 import com.kelf.spring_boot.utils.Result;
 import io.jsonwebtoken.Jwt;
@@ -165,7 +166,7 @@ public Result updateAvatar(String token, MultipartFile avatar) {
         if (os.toLowerCase().startsWith("win")) {
             // Windows系统
             try {
-                saveFile(avatar, windowsUploadPath,fileName);
+                FileUtils.saveFile(avatar, windowsUploadPath,fileName);
             } catch (Exception e) {
                 e.printStackTrace();
                 return Result.error().message("文件保存失败");
@@ -173,7 +174,7 @@ public Result updateAvatar(String token, MultipartFile avatar) {
         } else {
             // Linux系统
             try {
-                saveFile(avatar, linuxUploadPath,fileName);
+                FileUtils.saveFile(avatar, linuxUploadPath,fileName);
             } catch (Exception e) {
                 e.printStackTrace();
                 return Result.error().message("文件保存失败");
@@ -190,24 +191,7 @@ public Result updateAvatar(String token, MultipartFile avatar) {
 
     }
 
-    @ApiOperation("保存文件")
-    public void saveFile(MultipartFile file, String path,String fileName) throws IOException {
-        // 判断存储文件的文件夹是否存在，不存在则创建
-        File folder = new File(path);
-        if (!folder.exists()) {
-            folder.mkdirs();
-        }
 
-        // 保存文件
-        // 如果原始文件名存在是否会覆盖？
-        // 会覆盖
-        try {
-            file.transferTo(new File(path, fileName));
-        } catch (IOException e) {
-            throw new RuntimeException(e);
-        }
-
-    }
 
 
 }
