@@ -6,6 +6,7 @@ import com.kelf.spring_boot.entity.Record;
 import org.apache.ibatis.annotations.*;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Mapper
@@ -30,9 +31,9 @@ public interface RecordMapper {
     @Results(
             {
                     @Result(property = "id", column = "id"),
-                    @Result(property = "startTime", column = "start_timestamp"),
-                    @Result(property = "endTime", column = "end_timestamp"),
-                    @Result(property = "action", column = "action_id",
+                    @Result(property = "startTimeStamp", column = "start_timestamp"),
+                    @Result(property = "endTimeStamp", column = "end_timestamp"),
+                    @Result(property = "event", column = "event_id",
                             one = @One(select = "com.kelf.spring_boot.mapper.EventMapper.selectById")),
                     @Result(property = "user", column = "user_id",
                             one = @One(select = "com.kelf.spring_boot.mapper.UserMapper.selectById"))
@@ -42,7 +43,7 @@ public interface RecordMapper {
 
 
     //增加Record
-    @Insert("INSERT INTO record(start_timestamp, end_timestamp, mark, event_id, user_id) VALUES(#{startTime}, #{endTime}, #{mark}, #{eventId}, #{userId})")
+    @Insert("INSERT INTO record(start_timestamp, end_timestamp, mark, event_id, user_id) VALUES(#{startTimeStamp}, #{endTimeStamp}, #{mark}, #{eventId}, #{userId})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
     void addRecord(Record record);
 
@@ -62,14 +63,20 @@ public interface RecordMapper {
     int getUserIdById(int id);
 
 //    //查询某一天的记录
-//    @Select("SELECT * FROM record WHERE DATE(start_timestamp) = #{date}")
-//    List<Record> findByDate(@Param("date") LocalDate date);
-//
-//    //查询某一周的记录
-//    @Select("SELECT * FROM record WHERE YEARWEEK(start_timestamp) = YEARWEEK(#{date})")
-//    List<Record> findByWeek(@Param("date") LocalDate date);
-//
-//    //查询某一月的记录
-//    @Select("SELECT * FROM record WHERE YEAR(start_timestamp) = YEAR(#{date}) AND MONTH(start_timestamp) = MONTH(#{date})")
-//    List<Record> findByMonth(@Param("date") LocalDate date);
+//    @Select("SELECT * FROM record WHERE start_timestamp >= #{startOfDay} AND end_timestamp <= #{endOfDay} AND user_id = #{userId}")
+//    List<Record> findByDate(@Param("startOfDay") LocalDateTime startOfDay, @Param("endOfDay") LocalDateTime endOfDay, @Param("userId") int userId);
+
+    //查询某一天的所有记录
+    @Select("SELECT * FROM record WHERE ((start_timestamp >= #{startOfDay} AND end_timestamp <= #{endOfDay}) OR (start_timestamp >= #{startOfDay} AND start_timestamp <= #{endOfDay})) AND user_id = #{userId}")
+    List<Record> findByDateTimeRange(@Param("startOfDay") LocalDateTime startOfDay, @Param("endOfDay") LocalDateTime endOfDay, @Param("userId") int userId);
+
+    // 查询某一周的记录
+    @Select("SELECT * FROM record WHERE (start_timestamp >= #{startDate} AND end_timestamp <= #{endDate}) " +
+            "OR (start_timestamp >= #{startDate} AND start_timestamp <= #{endDate}) AND user_id = #{userId}")
+    List<Record> findByWeek(@Param("startDate") LocalDateTime startOfWeek, @Param("endDate") LocalDateTime endOfWeek, @Param("userId") int userId);
+
+    // 查询某一月的记录
+    @Select("SELECT * FROM record WHERE start_timestamp >= #{startOfMonth} AND end_timestamp <= #{endOfMonth} " +
+            "AND user_id = #{userId}")
+    List<Record> findByMonth(@Param("startOfMonth") LocalDateTime startOfMonth, @Param("endOfMonth") LocalDateTime endOfMonth, @Param("userId") int userId);
 }

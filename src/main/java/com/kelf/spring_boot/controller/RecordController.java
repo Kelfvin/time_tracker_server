@@ -11,11 +11,10 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.sql.Timestamp;
 import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
 
@@ -33,8 +32,8 @@ public class RecordController {
     public Result createRecord(@RequestBody Map<String,Object> requestBody) throws ParseException {
         /** {
          "record": {
-         "startTime": "2023-12-31T16:00:00.000+00:00",
-         "endTime": "2023-12-31T16:01:00.000+00:00",
+         "startTimeStamp": "2023-12-31T16:00:00.000+00:00",
+         "endTimeStamp": "2023-12-31T16:01:00.000+00:00",
          "mark": "kelf kiss kiss",
          "userId": 1,
          "eventId": 1
@@ -51,13 +50,13 @@ public class RecordController {
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
         formatter = formatter.withZone(TimeZone.getTimeZone("Asia/Shanghai").toZoneId());
         // 解析开始时间字符串
-        LocalDateTime startTime = LocalDateTime.parse((String)recordData.get("startTime"), formatter);
-        record.setStartTime(startTime);
+        LocalDateTime startTimeStamp = LocalDateTime.parse((String)recordData.get("startTimeStamp"), formatter);
+        record.setStartTimeStamp(startTimeStamp);
 
         //获得结束时间
-        if (recordData.get("endTime") != null) {
-            LocalDateTime endTime = LocalDateTime.parse((String) recordData.get("endTime"), formatter);
-            record.setEndTime(endTime);
+        if (recordData.get("endTimeStamp") != null) {
+            LocalDateTime endTimeStamp = LocalDateTime.parse((String) recordData.get("endTimeStamp"), formatter);
+            record.setEndTimeStamp(endTimeStamp);
         }
 
         record.setMark((String) recordData.get("mark"));
@@ -96,34 +95,85 @@ public class RecordController {
         return Result.error().message("非当前登录用户");
     }
 
-//    @ApiOperation("根据日期查询某一天的记录")
-//    @GetMapping("/day")
-//    /*
-//    {
-//  "startTimestamp": "2022-01-01T10:00:00",
-//  "endTimestamp": "2022-01-01T12:00:00",
-//  "mark": "Test",
-//  "eventId": 1,
-//  "userId": 1
-//}
-//*/
-//    public List<Record> findByDate(@RequestParam("date") String date) {
-//        LocalDate localDate = LocalDate.parse(date);
-//        return recordMapper.findByDate(localDate);
-//    }
-//
-//    @ApiOperation("根据日期查询某一周的记录")
-//    @GetMapping("/week")
-//    public List<Record> findByWeek(@RequestParam("date") String date) {
-//        LocalDate localDate = LocalDate.parse(date);
-//        return recordMapper.findByWeek(localDate);
-//    }
-//
-//    @ApiOperation("根据日期查询某一月的记录")
-//    @GetMapping("/month")
-//    public List<Record> findByMonth(@RequestParam("date") String date) {
-//        LocalDate localDate = LocalDate.parse(date);
-//        return recordMapper.findByMonth(localDate);
-//    }
+    @ApiOperation("根据日期查询某一天的记录")
+    @GetMapping("/day")
+    /*
+        {
+        "date":"2024-01-01",
+         "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0IiwiaWF0IjoxNzA0MTc0MTU0LCJleHAiOjE3MDQ3Nzg5NTR9.3VL9Z9eeOGUMDVcEGyxiXIZjdvx-kIMAU0wddIsc78c"
+        }
+
+*/
+    public Result findByDate(@RequestBody Map<String,Object> requestBody){
+        String date = (String) requestBody.get("date");
+        String token = (String) requestBody.get("token");
+        LocalDate localDate = LocalDate.parse(date);
+        int userId = userMapper.selectByUsername(JwtUtils.getClaimsByToken(token).getSubject()).getId();
+
+        LocalDateTime startOfDay = localDate.atStartOfDay();
+        LocalDateTime endOfDay = localDate.atTime(LocalTime.MAX);
+        List<Record> records = recordMapper.findByDateTimeRange(startOfDay, endOfDay, userId);
+
+//        System.out.println(startOfDay);
+//        System.out.println(endOfDay);
+
+        return Result.ok().data("recordOfDay", records);
+    }
+
+
+
+    @ApiOperation("根据日期查询某一周的记录")
+    @GetMapping("/week")
+    // 查询某一周的记录
+    public Result findByWeek(@RequestBody Map<String, Object> requestBody) {
+        /**
+         * {
+         *         "startDate": "2023-12-18",
+         *         "endDate": "2023-12-24",
+         *          "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0IiwiaWF0IjoxNzA0MTc0MTU0LCJleHAiOjE3MDQ3Nzg5NTR9.3VL9Z9eeOGUMDVcEGyxiXIZjdvx-kIMAU0wddIsc78c"
+         *}
+         */
+        String startDate = (String) requestBody.get("startDate");
+        String endDate = (String) requestBody.get("endDate");
+        String token = (String) requestBody.get("token");
+        int userId = userMapper.selectByUsername(JwtUtils.getClaimsByToken(token).getSubject()).getId();
+
+        LocalDateTime startOfWeek = LocalDate.parse(startDate).atStartOfDay();
+        LocalDateTime endOfWeek = LocalDate.parse(endDate).atTime(LocalTime.MAX);
+
+        System.out.println(startOfWeek);
+        System.out.println(endOfWeek);
+
+        return Result.ok().data("recordsOfWeek", recordMapper.findByWeek(startOfWeek, endOfWeek, userId));
+    }
+
+    @ApiOperation("根据日期查询某一月的记录")
+    @GetMapping("/month")
+    // 查询某一月的记录
+    public Result findByMonth(@RequestBody Map<String, Object> requestBody) {
+        /**
+         * {
+         *   "year": "2024",
+         *   "month": "1",
+         *   "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0IiwiaWF0IjoxNzA0MTc0MTU0LCJleHAiOjE3MDQ3Nzg5NTR9.3VL9Z9eeOGUMDVcEGyxiXIZjdvx-kIMAU0wddIsc78c"
+         * }
+         */
+        String year = (String) requestBody.get("year");
+        String month = (String) requestBody.get("month");
+        String token = (String) requestBody.get("token");
+        int userId = userMapper.selectByUsername(JwtUtils.getClaimsByToken(token).getSubject()).getId();
+
+        LocalDateTime startOfMonth = LocalDate.of(Integer.parseInt(year), Integer.parseInt(month), 1).atStartOfDay();
+        LocalDateTime endOfMonth = LocalDate.of(Integer.parseInt(year), Integer.parseInt(month), 1)
+                .plusMonths(1)
+                .atStartOfDay()
+                .minusSeconds(1);
+
+
+        System.out.println(startOfMonth);
+        System.out.println(endOfMonth);
+
+        return Result.ok().data("recordsOfMonth", recordMapper.findByMonth(startOfMonth, endOfMonth, userId));
+    }
 
 }

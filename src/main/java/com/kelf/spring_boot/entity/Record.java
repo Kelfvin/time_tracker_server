@@ -5,15 +5,14 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @TableName("record")
 public class Record {
     @TableId(type = IdType.AUTO)
     private int id;
-    private LocalDateTime startTime;
-    private LocalDateTime endTime;
+    private LocalDateTime startTimeStamp;
+    private LocalDateTime endTimeStamp;
     private String mark = null;
 
     private int userId;
@@ -49,20 +48,20 @@ public class Record {
         this.id = id;
     }
 
-    public LocalDateTime getStartTime() {
-        return startTime;
+    public LocalDateTime getStartTimeStamp() {
+        return startTimeStamp;
     }
 
-    public void setStartTime(LocalDateTime startTime) {
-        this.startTime = startTime;
+    public void setStartTimeStamp(LocalDateTime startTimeStamp) {
+        this.startTimeStamp = startTimeStamp;
     }
 
-    public LocalDateTime getEndTime() {
-        return endTime;
+    public LocalDateTime getEndTimeStamp() {
+        return endTimeStamp;
     }
 
-    public void setEndTime(LocalDateTime endTime) {
-        this.endTime = endTime;
+    public void setEndTimeStamp(LocalDateTime endTimeStamp) {
+        this.endTimeStamp = endTimeStamp;
     }
 
     public String getMark() {
