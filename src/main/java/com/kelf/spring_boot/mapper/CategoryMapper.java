@@ -27,8 +27,8 @@ public interface CategoryMapper {
 
 
     // 增加分类
-    @Insert("insert into category (name,color,user_id) values (#{category.name}, #{category.color}, #{user_id})")
-    void addCategory(int user_id, Category category);
+    @Insert("insert into category (name,color,user_id) values (#{name}, #{color}, #{userId})")
+    void addCategory(Category category);
 
 
     //获得分类
