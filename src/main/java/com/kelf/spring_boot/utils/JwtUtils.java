@@ -1,14 +1,20 @@
 package com.kelf.spring_boot.utils;
 
+import com.kelf.spring_boot.entity.User;
+import com.kelf.spring_boot.mapper.UserMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
+import org.springframework.beans.factory.annotation.Autowired;
 
+import javax.activation.DataHandler;
 import java.sql.Date;
 
 public class JwtUtils {
     private static final Long EXPIRE = 1000 * 60 * 60 * 24 * 7L; // 7 days
     private static final String sceret = "kelf";
+
+
 
     // 生成token
     public static String generateToken(String username) {
@@ -46,5 +52,6 @@ public class JwtUtils {
                 .getBody();
         return claims;
     }
+
 
 }

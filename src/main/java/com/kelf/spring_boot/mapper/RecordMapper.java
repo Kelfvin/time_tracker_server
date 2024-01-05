@@ -79,4 +79,12 @@ public interface RecordMapper {
     @Select("SELECT * FROM record WHERE start_timestamp >= #{startOfMonth} AND end_timestamp <= #{endOfMonth} " +
             "AND user_id = #{userId}")
     List<Record> findByMonth(@Param("startOfMonth") LocalDateTime startOfMonth, @Param("endOfMonth") LocalDateTime endOfMonth, @Param("userId") int userId);
+
+    // 根据id查询记录
+    @Select("SELECT * FROM record WHERE id = #{id}")
+    Record getRecordById(int id);
+
+    // 根据用户id查询记录，且结束时间为空
+    @Select("SELECT * FROM record WHERE user_id = #{id} AND end_timestamp IS NULL")
+    Record getRecordByUserIdAndEndTimeStampIsNull(int id);
 }

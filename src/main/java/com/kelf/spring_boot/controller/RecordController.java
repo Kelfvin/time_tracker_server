@@ -1,7 +1,9 @@
 package com.kelf.spring_boot.controller;
 
 
+import com.kelf.spring_boot.entity.Event;
 import com.kelf.spring_boot.entity.User;
+import com.kelf.spring_boot.mapper.EventMapper;
 import com.kelf.spring_boot.mapper.RecordMapper;
 import com.kelf.spring_boot.mapper.UserMapper;
 import com.kelf.spring_boot.utils.JwtUtils;
@@ -26,6 +28,80 @@ public class RecordController {
     private RecordMapper recordMapper;
     @Autowired
     private UserMapper userMapper;
+
+    @Autowired
+    private EventMapper eventMapper;
+
+    // 获取记录
+    @ApiOperation("根据id获取记录")
+    @GetMapping("/getById")
+    public Result getRecordById(@RequestHeader("Authorization") String token, int id) {
+        String username = JwtUtils.getClaimsByToken(token).getSubject();
+        User user = userMapper.selectByUsername(username);
+        Record record = recordMapper.getRecordById(id);
+        if (record == null || record.getUserId() != user.getId()) {
+            return Result.error().message("非当前登录用户");
+        }
+        return Result.ok().data("record", record);
+    }
+
+    // 开始某一条记录
+    @ApiOperation("开始某一条记录")
+    @PostMapping("/start")
+    public Result startRecord(@RequestHeader("Authorization") String token, int eventId) {
+        String username = JwtUtils.getClaimsByToken(token).getSubject();
+        User user = userMapper.selectByUsername(username);
+
+        // 查询事件
+        Event event = eventMapper.getEventById(eventId);
+        if (event == null || event.getUserId() != user.getId()) {
+            return Result.error().message("非当前登录用户");
+        }
+
+        // 查询当前用户正在进行的记录
+        Record record = recordMapper.getRecordByUserIdAndEndTimeStampIsNull(user.getId());
+        // 如果有正在进行的记录，结束它
+        if (record != null) {
+            record.setEndTimeStamp(LocalDateTime.now());
+            recordMapper.updateRecord(record);
+        }
+
+        // 开始新的记录
+        record = new Record();
+        record.setStartTimeStamp(LocalDateTime.now());
+        record.setEventId(eventId);
+        record.setUserId(user.getId());
+        recordMapper.addRecord(record);
+
+        return Result.ok().message("开始记录成功");
+
+    }
+
+
+    // 结束某一条记录
+    @ApiOperation("结束某一条记录")
+    @PostMapping("/end")
+    public Result endRecord(@RequestHeader("Authorization") String token, int recordId) {
+        String username = JwtUtils.getClaimsByToken(token).getSubject();
+        User user = userMapper.selectByUsername(username);
+
+        // 查询
+        Record record = recordMapper.getRecordById(recordId);
+        if (record == null || record.getUserId() != user.getId()) {
+            return Result.error().message("非当前登录用户");
+        }
+
+        // 如果是已经结束的记录，直接返回
+        if (record.getEndTimeStamp() != null) {
+            return Result.ok().message("已经结束的记录");
+        }
+
+        // 结束记录
+        record.setEndTimeStamp(LocalDateTime.now());
+        recordMapper.updateRecord(record);
+
+        return Result.ok().message("结束记录成功");
+    }
 
     @ApiOperation("增加记录")
     @PostMapping("/add")

@@ -54,28 +54,30 @@ public class EventController {
 
     @ApiOperation("根据用户token查询所有事件")
     @GetMapping("/selectByToken")
-    public Result getAllEvent(@RequestBody Map<String, Object> requestBody){
-        String token = (String) requestBody.get("token");
-//        return Result.ok().data("test",token);
+    public Result getAllEvent(@RequestHeader("Authorization") String token){
         String username =  JwtUtils.getClaimsByToken(token).getSubject();
         User user = userMapper.selectByUsername(username);
         return Result.ok().data("events",eventMapper.getEventsByUserId(user.getId()));
-
     }
 
     @ApiOperation("删除事件")
     @DeleteMapping("/del")
-    public Result deleteEvent(@RequestBody Map<String, Object> requestBody){
-        int eventId = (Integer) requestBody.get("eventId");
-        String token = (String) requestBody.get("token");
-        //如果用户id和token的一致，则删除事件
-        if(userMapper.selectByUsername(JwtUtils.getClaimsByToken(token).getSubject()).getId() == eventMapper.getUserIdByEventId(eventId)){
-            eventMapper.deleteEvent(eventId);
+    public Result deleteEvent(@RequestHeader("Authorization") String token,int id){
+        // 获取用户
+        User user = userMapper.selectByUsername(JwtUtils.getClaimsByToken(token).getSubject());
+        // 获取事件
+        Event event = eventMapper.getEventById(id);
+
+        // 如果用户id和事件的用户id一致，则删除事件
+        if(user.getId() == event.getUserId()){
+            eventMapper.deleteEvent(id);
             return Result.ok().message("删除事件成功");
         }
 
         return Result.error().message("非登录用户");
     }
+
+
 
     @ApiOperation("修改事件")
     @PutMapping("/update")
