@@ -183,15 +183,9 @@ public class RecordController {
     @ApiOperation("根据日期查询某一天的记录")
     @GetMapping("/day")
     /*
-        {
         "date":"2024-01-01",
-         "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0IiwiaWF0IjoxNzA0MTc0MTU0LCJleHAiOjE3MDQ3Nzg5NTR9.3VL9Z9eeOGUMDVcEGyxiXIZjdvx-kIMAU0wddIsc78c"
-        }
-
-*/
-    public Result findByDate(@RequestBody Map<String,Object> requestBody){
-        String date = (String) requestBody.get("date");
-        String token = (String) requestBody.get("token");
+        */
+    public Result findByDate( @RequestHeader("Authorization") String token ,String date){
         LocalDate localDate = LocalDate.parse(date);
         int userId = userMapper.selectByUsername(JwtUtils.getClaimsByToken(token).getSubject()).getId();
 

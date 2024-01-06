@@ -66,6 +66,17 @@ public interface RecordMapper {
 
     //查询某一天的所有记录
     @Select("SELECT * FROM record WHERE ((start_timestamp >= #{startOfDay} AND end_timestamp <= #{endOfDay}) OR (start_timestamp >= #{startOfDay} AND start_timestamp <= #{endOfDay})) AND user_id = #{userId}")
+    @Results(
+            {
+                    @Result(property = "id", column = "id"),
+                    @Result(property = "startTimestamp", column = "start_timestamp"),
+                    @Result(property = "endTimestamp", column = "end_timestamp"),
+                    @Result(property = "event", column = "event_id",
+                            one = @One(select = "com.kelf.spring_boot.mapper.EventMapper.selectById")),
+                    @Result(property = "user", column = "user_id",
+                            one = @One(select = "com.kelf.spring_boot.mapper.UserMapper.selectById"))
+            }
+    )
     List<Record> findByDateTimeRange(@Param("startOfDay") LocalDateTime startOfDay, @Param("endOfDay") LocalDateTime endOfDay, @Param("userId") int userId);
 
     // 查询某一周的记录
