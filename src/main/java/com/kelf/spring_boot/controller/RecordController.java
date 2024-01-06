@@ -62,13 +62,13 @@ public class RecordController {
         Record record = recordMapper.getRecordByUserIdAndEndTimeStampIsNull(user.getId());
         // 如果有正在进行的记录，结束它
         if (record != null) {
-            record.setEndTimeStamp(LocalDateTime.now());
+            record.setEndTimestamp(LocalDateTime.now());
             recordMapper.updateRecord(record);
         }
 
         // 开始新的记录
         record = new Record();
-        record.setStartTimeStamp(LocalDateTime.now());
+        record.setStartTimestamp(LocalDateTime.now());
         record.setEventId(eventId);
         record.setUserId(user.getId());
         recordMapper.addRecord(record);
@@ -92,12 +92,12 @@ public class RecordController {
         }
 
         // 如果是已经结束的记录，直接返回
-        if (record.getEndTimeStamp() != null) {
+        if (record.getEndTimestamp() != null) {
             return Result.ok().message("已经结束的记录");
         }
 
         // 结束记录
-        record.setEndTimeStamp(LocalDateTime.now());
+        record.setEndTimestamp(LocalDateTime.now());
         recordMapper.updateRecord(record);
 
         return Result.ok().message("结束记录成功");
@@ -127,12 +127,12 @@ public class RecordController {
         formatter = formatter.withZone(TimeZone.getTimeZone("Asia/Shanghai").toZoneId());
         // 解析开始时间字符串
         LocalDateTime startTimeStamp = LocalDateTime.parse((String)recordData.get("startTimeStamp"), formatter);
-        record.setStartTimeStamp(startTimeStamp);
+        record.setStartTimestamp(startTimeStamp);
 
         //获得结束时间
         if (recordData.get("endTimeStamp") != null) {
             LocalDateTime endTimeStamp = LocalDateTime.parse((String) recordData.get("endTimeStamp"), formatter);
-            record.setEndTimeStamp(endTimeStamp);
+            record.setEndTimestamp(endTimeStamp);
         }
 
         record.setMark((String) recordData.get("mark"));

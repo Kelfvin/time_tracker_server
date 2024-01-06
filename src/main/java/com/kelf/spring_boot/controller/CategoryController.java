@@ -1,6 +1,7 @@
 package com.kelf.spring_boot.controller;
 
 
+
 import com.baomidou.mybatisplus.extension.api.R;
 import com.kelf.spring_boot.entity.Category;
 import com.kelf.spring_boot.entity.User;
@@ -11,6 +12,7 @@ import com.kelf.spring_boot.utils.Result;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
+import java.util.List;
 
 import java.util.Map;
 
@@ -77,5 +79,29 @@ public class CategoryController {
         User user = userMapper.selectByUsername(username);
         return Result.ok().data("categoryList",categoryMapper.getAllCategoryByUserId(user.getId()));
     }
+
+
+    // 根据开始时间和截至时间获取统计数据
+    @ApiOperation("根据开始时间和截至时间获取统计数据")
+    @GetMapping("/getStatistics")
+    public Result getStatistics(@RequestHeader("Authorization") String token, String startTime, String endTime) {
+        String username = JwtUtils.getClaimsByToken(token).getSubject();
+        User user = userMapper.selectByUsername(username);
+        // 获取用户的分类
+        List<Category> categories = categoryMapper.getAllCategoryByUserId(user.getId());
+        // 获取用户的记录
+
+        //TODO: 2024/1/6 0020  这里需要修改, 需要在Category实体中增加一个字段，表示统计的Duration（时间片段长度）
+        // 然后根据数据库查询出来的记录，把每条记录的时间片段长度加到对应的分类中
+        // 准确的来说 category下有events，每个event下也有Duration
+        // Category
+        //     List<Event>
+        // Event
+        //     Duration
+        // 思路应该是用分组查询什么的，具体看你怎么写
+
+        return  Result.ok();
+    }
+
 
 }

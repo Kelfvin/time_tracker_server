@@ -11,8 +11,8 @@ import java.time.LocalDateTime;
 public class Record {
     @TableId(type = IdType.AUTO)
     private int id;
-    private LocalDateTime startTimeStamp;
-    private LocalDateTime endTimeStamp;
+    private LocalDateTime startTimestamp;
+    private LocalDateTime endTimestamp;
     private String mark = null;
 
     private int userId;
@@ -48,20 +48,20 @@ public class Record {
         this.id = id;
     }
 
-    public LocalDateTime getStartTimeStamp() {
-        return startTimeStamp;
+    public LocalDateTime getStartTimestamp() {
+        return startTimestamp;
     }
 
-    public void setStartTimeStamp(LocalDateTime startTimeStamp) {
-        this.startTimeStamp = startTimeStamp;
+    public void setStartTimestamp(LocalDateTime startTimestamp) {
+        this.startTimestamp = startTimestamp;
     }
 
-    public LocalDateTime getEndTimeStamp() {
-        return endTimeStamp;
+    public LocalDateTime getEndTimestamp() {
+        return endTimestamp;
     }
 
-    public void setEndTimeStamp(LocalDateTime endTimeStamp) {
-        this.endTimeStamp = endTimeStamp;
+    public void setEndTimestamp(LocalDateTime endTimestamp) {
+        this.endTimestamp = endTimestamp;
     }
 
     public String getMark() {

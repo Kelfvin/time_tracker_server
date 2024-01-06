@@ -73,4 +73,7 @@ public interface UserMapper
     //删除用户
     @Delete("DELETE FROM user WHERE id = #{id}")
     void deleteUser(int id);
+
+    @Select("select * from user where id = #{id}")
+    User getUserById(int id);
 }
