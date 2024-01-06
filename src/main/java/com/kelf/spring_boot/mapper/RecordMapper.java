@@ -1,11 +1,9 @@
 package com.kelf.spring_boot.mapper;
 
 
-import com.fasterxml.jackson.core.Base64Variant;
 import com.kelf.spring_boot.entity.Record;
 import org.apache.ibatis.annotations.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -82,9 +80,22 @@ public interface RecordMapper {
 
     // 根据id查询记录
     @Select("SELECT * FROM record WHERE id = #{id}")
-    Record getRecordById(int id);
+    @Results(
+            {
+                    @Result(property = "id", column = "id"),
+                    @Result(property = "startTimestamp", column = "start_timestamp"),
+                    @Result(property = "endTimestamp", column = "end_timestamp"),
+                    @Result(property = "userId", column = "user_id"),
+                    @Result(property = "eventId", column = "event_id"),
+                    @Result(property = "event", column = "event_id",
+                            one = @One(select = "com.kelf.spring_boot.mapper.EventMapper.selectById")),
+                    @Result(property = "user", column = "user_id",
+                            one = @One(select = "com.kelf.spring_boot.mapper.UserMapper.selectById"))
+            }
+    )
+    Record selectById(int id);
 
     // 根据用户id查询记录，且结束时间为空
     @Select("SELECT * FROM record WHERE user_id = #{id} AND end_timestamp IS NULL")
-    Record getRecordByUserIdAndEndTimeStampIsNull(int id);
+    Record selectRecordByUserIdAndEndTimeStampIsNull(int id);
 }

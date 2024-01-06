@@ -38,8 +38,17 @@ public class RecordController {
     public Result getRecordById(@RequestHeader("Authorization") String token, int id) {
         String username = JwtUtils.getClaimsByToken(token).getSubject();
         User user = userMapper.selectByUsername(username);
-        Record record = recordMapper.getRecordById(id);
-        if (record == null || record.getUserId() != user.getId()) {
+        Record record = recordMapper.selectById(id);
+
+        // 打印一下
+        System.out.println(record);
+
+
+        if(record == null){
+            return Result.error().message("记录不存在");
+        }
+
+        if (record.getUserId() != user.getId()) {
             return Result.error().message("非当前登录用户");
         }
         return Result.ok().data("record", record);
@@ -59,7 +68,7 @@ public class RecordController {
         }
 
         // 查询当前用户正在进行的记录
-        Record record = recordMapper.getRecordByUserIdAndEndTimeStampIsNull(user.getId());
+        Record record = recordMapper.selectRecordByUserIdAndEndTimeStampIsNull(user.getId());
         // 如果有正在进行的记录，结束它
         if (record != null) {
             record.setEndTimestamp(LocalDateTime.now());
@@ -86,7 +95,7 @@ public class RecordController {
         User user = userMapper.selectByUsername(username);
 
         // 查询
-        Record record = recordMapper.getRecordById(recordId);
+        Record record = recordMapper.selectById(recordId);
         if (record == null || record.getUserId() != user.getId()) {
             return Result.error().message("非当前登录用户");
         }

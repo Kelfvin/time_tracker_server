@@ -89,5 +89,17 @@ public class Record {
     }
 
 
-
+    @Override
+    public String toString() {
+        return "Record{" +
+                "id=" + id +
+                ", startTimestamp=" + startTimestamp +
+                ", endTimestamp=" + endTimestamp +
+                ", mark='" + mark + '\'' +
+                ", userId=" + userId +
+                ", eventId=" + eventId +
+                ", event=" + event +
+                ", user=" + user +
+                '}';
+    }
 }

@@ -1,7 +1,5 @@
 package com.kelf.spring_boot.mapper;
 
-import com.baomidou.mybatisplus.annotation.TableName;
-import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.kelf.spring_boot.entity.Category;
 import org.apache.ibatis.annotations.*;
 
@@ -42,7 +40,7 @@ public interface CategoryMapper {
             @Result(property = "events", column = "id",
                     many = @Many(select = "com.kelf.spring_boot.mapper.EventMapper.selectByCategoryId"))
     })
-    Category getCategoryById(int id);
+    Category selectById(int id);
 
     //更新分类
     @Update("UPDATE category SET name = #{name}, color = #{color}, user_id = #{userId} WHERE id = #{id}")
@@ -52,4 +50,6 @@ public interface CategoryMapper {
     @Delete("DELETE FROM category WHERE id = #{id}")
     void deleteCategory(int id);
 
+    
+    
 }

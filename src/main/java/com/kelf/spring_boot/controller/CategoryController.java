@@ -2,7 +2,6 @@ package com.kelf.spring_boot.controller;
 
 
 
-import com.baomidou.mybatisplus.extension.api.R;
 import com.kelf.spring_boot.entity.Category;
 import com.kelf.spring_boot.entity.User;
 import com.kelf.spring_boot.mapper.CategoryMapper;
@@ -13,8 +12,6 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
-
-import java.util.Map;
 
 @RestController
 @RequestMapping("/category")
@@ -53,7 +50,7 @@ public class CategoryController {
         String username = JwtUtils.getClaimsByToken(token).getSubject();
         User user = userMapper.selectByUsername(username);
 
-        if (user.getId() == categoryMapper.getCategoryById(id).getUserId()) {
+        if (user.getId() == categoryMapper.selectById(id).getUserId()) {
             categoryMapper.deleteCategory(id);
         } else {
             return Result.error().message("非当前登录用户");
