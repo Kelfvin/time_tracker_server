@@ -29,8 +29,8 @@ public interface RecordMapper {
     @Results(
             {
                     @Result(property = "id", column = "id"),
-                    @Result(property = "startTimeStamp", column = "start_timestamp"),
-                    @Result(property = "endTimeStamp", column = "end_timestamp"),
+                    @Result(property = "startTimestamp", column = "start_timestamp"),
+                    @Result(property = "endTimestamp", column = "end_timestamp"),
                     @Result(property = "event", column = "event_id",
                             one = @One(select = "com.kelf.spring_boot.mapper.EventMapper.selectById")),
                     @Result(property = "user", column = "user_id",
@@ -41,7 +41,7 @@ public interface RecordMapper {
 
 
     //增加Record
-    @Insert("INSERT INTO record(start_timestamp, end_timestamp, mark, event_id, user_id) VALUES(#{startTimeStamp}, #{endTimeStamp}, #{mark}, #{eventId}, #{userId})")
+    @Insert("INSERT INTO record(start_timestamp, end_timestamp, mark, event_id, user_id) VALUES(#{startTimestamp}, #{endTimestamp}, #{mark}, #{eventId}, #{userId})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
     void addRecord(Record record);
 
@@ -108,5 +108,5 @@ public interface RecordMapper {
 
     // 根据用户id查询记录，且结束时间为空
     @Select("SELECT * FROM record WHERE user_id = #{id} AND end_timestamp IS NULL")
-    Record selectRecordByUserIdAndEndTimeStampIsNull(int id);
+    Record selectRecordByUserIdAndEndTimestampIsNull(int id);
 }
