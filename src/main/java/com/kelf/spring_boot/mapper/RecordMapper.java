@@ -108,11 +108,12 @@ public interface RecordMapper {
 
     // 根据用户id查询记录，且结束时间为空
     @Select("SELECT * FROM record WHERE user_id = #{id} AND end_timestamp IS NULL")
-    Record selectRecordByUserIdAndEndTimeStampIsNull(int id);
+    Record selectRecordByUserIdAndEndTimestampIsNull(int id);
 
     // 根据userId和eventId获取record
-    @Select("SELECT * FROM record WHERE (start_timestamp >= #{startDate} AND end_timestamp <= #{endDate}) " +
-            "OR (start_timestamp >= #{startDate} AND start_timestamp <= #{endDate}) AND user_id = #{userId}" +
-            "AND event_id = #{eventId}")
-    List<Record> findRecordOfCategory(@Param("userId") int userId,@Param("eventId") int eventId,@Param("startDate") LocalDateTime startTime, @Param("endDate") LocalDateTime endTime);
+    @Select("SELECT * FROM record WHERE (start_timestamp >= #{startTime} AND end_timestamp <= #{endTime}) " +
+            "OR (start_timestamp >= #{startTime} AND start_timestamp <= #{endTime}) "+
+    "AND user_id = #{userId} AND event_id = #{eventId}")
+
+    List<Record> findRecordOfCategory(int userId,int eventId,LocalDateTime startTime, LocalDateTime endTime);
 }
