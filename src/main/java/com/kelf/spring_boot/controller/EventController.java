@@ -1,7 +1,9 @@
 package com.kelf.spring_boot.controller;
 
+import com.kelf.spring_boot.entity.Category;
 import com.kelf.spring_boot.entity.Event;
 import com.kelf.spring_boot.entity.User;
+import com.kelf.spring_boot.mapper.CategoryMapper;
 import com.kelf.spring_boot.mapper.EventMapper;
 import com.kelf.spring_boot.mapper.UserMapper;
 import com.kelf.spring_boot.utils.JwtUtils;
@@ -22,34 +24,30 @@ public class EventController {
     @Autowired
     private UserMapper userMapper;
 
+    @Autowired
+    private CategoryMapper categoryMapper;
+
 
     @ApiOperation("增加事件")
     @PostMapping("/add")
-    public Result addEvent(@RequestBody Map<String, Object> requestBody){
-        /** 测试json格式
-         {
-         "event":{
-         "name":"打人",
-         "color":"#ffffff",
-         "categoryId":1,
-         "userId":1
-         },
-         "token":"eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0IiwiaWF0IjoxNzA0MTc0MTU0LCJleHAiOjE3MDQ3Nzg5NTR9.3VL9Z9eeOGUMDVcEGyxiXIZjdvx-kIMAU0wddIsc78c"
-         }
-         **/
-        Map<String,Object> eventMap = (Map<String,Object>) requestBody.get("event");
-        Event event = new Event();
-        event.setName((String) eventMap.get("name"));
-        event.setColor((String) eventMap.get("color"));
-        event.setCategoryId((Integer) eventMap.get("categoryId"));
-        event.setUserId((Integer) eventMap.get("userId"));
-        String token = (String) requestBody.get("token");
-        if(event.getUserId()== userMapper.selectByUsername(JwtUtils.getClaimsByToken(token).getSubject()).getId()){
-            eventMapper.addEvent(event);
-            return Result.ok().message("增加事件成功");
+    public Result addEvent(@RequestHeader("Authorization") String token, @RequestBody Event event){
+        // 获取用户id
+        String username = JwtUtils.getClaimsByToken(token).getSubject();
+        User user = userMapper.selectByUsername(username);
+        event.setUserId(user.getId());
+
+        //  查询category
+        Category category = categoryMapper.selectById(event.getCategoryId());
+        if(category == null){
+            return Result.error().message("类别不存在");
+        }
+        // 如果用户id和类别的id不一致，则返回错误
+        if(user.getId() != category.getUserId()){
+            return Result.error().message("非当前登录用户");
         }
 
-        return Result.error().message("非登录用户");
+        eventMapper.addEvent(event);
+        return Result.ok().message("增加事件成功").data("event",event);
     }
 
     @ApiOperation("根据用户token查询所有事件")

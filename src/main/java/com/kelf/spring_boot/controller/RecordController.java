@@ -32,6 +32,26 @@ public class RecordController {
     @Autowired
     private EventMapper eventMapper;
 
+
+    // 获取当前的记录
+    @ApiOperation("获取当前的记录")
+    @GetMapping("/current")
+    public Result getCurrentRecord(@RequestHeader("Authorization") String token) {
+        String username = JwtUtils.getClaimsByToken(token).getSubject();
+        User user = userMapper.selectByUsername(username);
+
+        Record record = recordMapper.selectRecordByUserIdAndEndTimestampIsNull(user.getId());
+
+        if (record == null) {
+            return Result.error().message("当前没有正在进行的记录");
+        }
+
+        // 查询事件
+        record.setEvent(eventMapper.getEventById(record.getEventId()));
+
+        return Result.ok().data("record", record);
+    }
+
     // 获取记录
     @ApiOperation("根据id获取记录")
     @GetMapping("/getById")
@@ -61,6 +81,8 @@ public class RecordController {
         String username = JwtUtils.getClaimsByToken(token).getSubject();
         User user = userMapper.selectByUsername(username);
 
+
+
         // 查询事件
         Event event = eventMapper.getEventById(eventId);
         if (event == null || event.getUserId() != user.getId()) {
@@ -68,7 +90,7 @@ public class RecordController {
         }
 
         // 查询当前用户正在进行的记录
-        Record record = recordMapper.selectRecordByUserIdAndEndTimeStampIsNull(user.getId());
+        Record record = recordMapper.selectRecordByUserIdAndEndTimestampIsNull(user.getId());
         // 如果有正在进行的记录，结束它
         if (record != null) {
             record.setEndTimestamp(LocalDateTime.now());
@@ -82,7 +104,10 @@ public class RecordController {
         record.setUserId(user.getId());
         recordMapper.addRecord(record);
 
-        return Result.ok().message("开始记录成功");
+        // 查询事件
+        record.setEvent(eventMapper.getEventById(eventId));
+
+        return Result.ok().message("开始记录成功").data("record", record);
 
     }
 
@@ -109,7 +134,7 @@ public class RecordController {
         record.setEndTimestamp(LocalDateTime.now());
         recordMapper.updateRecord(record);
 
-        return Result.ok().message("结束记录成功");
+        return Result.ok().message("结束记录成功").data("record", record);
     }
 
     @ApiOperation("增加记录")
