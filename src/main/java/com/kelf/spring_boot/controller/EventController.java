@@ -103,6 +103,12 @@ public class EventController {
     }
 
 
+    @ApiOperation("根据事件id获取事件的耗时")
+    @GetMapping("/time")
+    public Result selectById(@RequestParam("id") int id){
+        return Result.ok();
+    }
+
 
 
 }

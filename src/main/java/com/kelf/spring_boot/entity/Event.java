@@ -5,6 +5,10 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
+import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+
 @TableName("event")
 public class Event {
 
@@ -17,6 +21,17 @@ public class Event {
     private int categoryId;
 
     private int userId;
+
+    public Duration getDuration() {
+        return duration;
+    }
+
+    public void setDuration(Duration duration) {
+        this.duration = duration;
+    }
+
+    @TableField(exist = false)
+    private Duration duration;  //每个事件的时间开销
 
     @TableField(exist = false)
     private Category category; //category_id

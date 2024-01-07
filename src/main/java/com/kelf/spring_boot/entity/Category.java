@@ -5,6 +5,7 @@ import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
 
+import java.time.Duration;
 import java.util.List;
 
 @TableName("category")
@@ -18,6 +19,19 @@ public class Category {
 
         private int userId;
 
+
+
+        @TableField(exist = false)
+        private Duration duration ; //统计分类的时间开销
+
+
+        public Duration getDuration() {
+                return duration;
+        }
+
+        public void setDuration(Duration duration) {
+                this.duration = duration;
+        }
         public int getUserId() {
                 return userId;
         }
