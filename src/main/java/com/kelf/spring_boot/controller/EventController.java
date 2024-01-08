@@ -59,12 +59,16 @@ public class EventController {
     }
 
     @ApiOperation("删除事件")
-    @DeleteMapping("/del")
+    @DeleteMapping("")
     public Result deleteEvent(@RequestHeader("Authorization") String token,int id){
         // 获取用户
         User user = userMapper.selectByUsername(JwtUtils.getClaimsByToken(token).getSubject());
         // 获取事件
         Event event = eventMapper.getEventById(id);
+
+        if (event == null) {
+            return Result.error().message("事件不存在");
+        }
 
         // 如果用户id和事件的用户id一致，则删除事件
         if(user.getId() == event.getUserId()){

@@ -38,10 +38,8 @@ public class CategoryController {
 
     // 增加分类
     @ApiOperation("根据传入的category和token增加分类")
-    @PostMapping("/add")
+    @PostMapping("")
     public Result add(@RequestHeader("Authorization") String token, @RequestBody Category category) {
-
-
         // 获取用户id
         String username = JwtUtils.getClaimsByToken(token).getSubject();
 
@@ -56,8 +54,8 @@ public class CategoryController {
 
 
 
-    @ApiOperation("根据token删除分类")
-    @DeleteMapping("/deleteById")
+    @ApiOperation("根据id删除分类")
+    @DeleteMapping("")
     public Result deleteCategory(@RequestHeader("Authorization") String token,int id){
         // 先验证类别的用户id是否和当前用户id一致
         String username = JwtUtils.getClaimsByToken(token).getSubject();
@@ -91,10 +89,8 @@ public class CategoryController {
 
     // 根据开始时间和截至时间获取统计数据
     @ApiOperation("根据开始时间和截至时间获取统计数据")
-    @GetMapping("/getStatistics")
+    @GetMapping("/statistics")
     public Result getStatistics(@RequestHeader("Authorization") String token, String startDate, String endDate) {
-
-
         String username = JwtUtils.getClaimsByToken(token).getSubject();
         User user = userMapper.selectByUsername(username);
         // 获取用户的分类
@@ -115,33 +111,51 @@ public class CategoryController {
 //        List<Record> records = recordMapper.findByWeek(start, end,user.getId());//这里用week方法是因为传的都是起始和中止时间，效果一样
 
         //统计每一个事件的时间开销
-        for(int i=0;i<events.size();i++){
+        for(var event : events){
             Duration duration = Duration.ZERO; //每一个事件的时间片
-            List<Record> records = recordMapper.findRecordOfCategory(user.getId(),events.get(i).getId(),start,end);
+            List<Record> records = recordMapper.findRecordOfCategory(user.getId(),event.getId(),start,end);
             for(Record record : records){
-                Duration durationTemp = Duration.between(record.getStartTimestamp(), record.getEndTimestamp());
-                duration =  duration.plus(durationTemp); //遍历累加每一个record的时间开销
+                // 如果是和Event相关的记录，那么就要计算时间开销
+                if(record.getEventId() == event.getId()) {
+                    // 如果结束时间为空，那么就用当前时间
+                    if (record.getEndTimestamp() == null) {
+                        record.setEndTimestamp(LocalDateTime.now());
+                    }
+
+
+                    // 根据时间进行计算，如果开始时间段和当前时间段是冲突的，要进行截断
+                    if (record.getStartTimestamp().isBefore(start)) {
+                        record.setStartTimestamp(start);
+                    }
+
+                    if (record.getEndTimestamp().isAfter(end)) {
+                        record.setEndTimestamp(end);
+                    }
+
+                    Duration durationTemp = Duration.between(record.getStartTimestamp(), record.getEndTimestamp());
+                    duration = duration.plus(durationTemp); //遍历累加每一个record的时间开销
+
+                }
             }
-            Event event = events.get(i);
+
             event.setDuration(duration);
-            events.set(i,event);
         }
 
         //统计每个分类的时间开销
-        for(int i=0; i<categories.size();i++){
+        for(var category : categories){
             Duration duration = Duration.ZERO; //每一个分类的时间片
             List<Event>eventList = new ArrayList<Event>();
-            Category categoryTemp = categories.get(i);
             for(Event event:events){
-                if(categoryTemp.getId() == event.getCategoryId()){
+                if(category.getId() == event.getCategoryId()){
                     //筛选每个分类的所有事件时间开销
                     eventList.add(event);
-                    categoryTemp.setDuration(duration.plus(event.getDuration()));
-                }
+                    duration = duration.plus(event.getDuration());
 
+                }
             }
-            categoryTemp.setEvents(eventList);
-            categories.set(i,categoryTemp);
+
+            category.setDuration(duration);
+            category.setEvents(eventList);
         }
         return  Result.ok().data("categories",categories).data("events",events);
     }

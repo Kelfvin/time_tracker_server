@@ -29,8 +29,8 @@ public interface RecordMapper {
     @Results(
             {
                     @Result(property = "id", column = "id"),
-                    @Result(property = "startTimeStamp", column = "start_timestamp"),
-                    @Result(property = "endTimeStamp", column = "end_timestamp"),
+                    @Result(property = "startTimestamp", column = "start_timestamp"),
+                    @Result(property = "endTimestamp", column = "end_timestamp"),
                     @Result(property = "event", column = "event_id",
                             one = @One(select = "com.kelf.spring_boot.mapper.EventMapper.selectById")),
                     @Result(property = "user", column = "user_id",
@@ -41,7 +41,7 @@ public interface RecordMapper {
 
 
     //增加Record
-    @Insert("INSERT INTO record(start_timestamp, end_timestamp, mark, event_id, user_id) VALUES(#{startTimeStamp}, #{endTimeStamp}, #{mark}, #{eventId}, #{userId})")
+    @Insert("INSERT INTO record(start_timestamp, end_timestamp, mark, event_id, user_id) VALUES(#{startTimestamp}, #{endTimestamp}, #{mark}, #{eventId}, #{userId})")
     @Options(useGeneratedKeys = true, keyProperty = "id")
     void addRecord(Record record);
 
@@ -111,9 +111,16 @@ public interface RecordMapper {
     Record selectRecordByUserIdAndEndTimestampIsNull(int id);
 
     // 根据userId和eventId获取record
-    @Select("SELECT * FROM record WHERE (start_timestamp >= #{startTime} AND end_timestamp <= #{endTime}) " +
-            "OR (start_timestamp >= #{startTime} AND start_timestamp <= #{endTime}) "+
+    // 只要开始时间或是结束时间在这个时间段内的记录都要被查询出来
+    @Select("SELECT * FROM record WHERE (start_timestamp >= #{startTime} AND start_timestamp <= #{endTime}) " +
+            "OR (end_timestamp >= #{startTime} AND record.end_timestamp <= #{endTime}) "+
     "AND user_id = #{userId} AND event_id = #{eventId}")
-
     List<Record> findRecordOfCategory(int userId,int eventId,LocalDateTime startTime, LocalDateTime endTime);
+
+    // 根据用户id和时间范围查询记录有重叠的记录
+    @Select("SELECT * FROM record WHERE (start_timestamp >= #{startTimestamp} AND start_timestamp <= #{endTimestamp}) " +
+            "OR (end_timestamp >= #{startTimestamp} AND record.end_timestamp <= #{endTimestamp}) "+
+            "OR (start_timestamp<= #{startTimestamp} AND end_timestamp >= #{endTimestamp} )"+
+            "AND user_id = #{id}")
+    List<Record> selectRecordByUserIdAndConflictTimeRange(int id, LocalDateTime startTimestamp, LocalDateTime endTimestamp);
 }

@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.annotation.IdType;
 import com.baomidou.mybatisplus.annotation.TableField;
 import com.baomidou.mybatisplus.annotation.TableId;
 import com.baomidou.mybatisplus.annotation.TableName;
+import com.fasterxml.jackson.annotation.JsonFormat;
 
 import java.time.LocalDateTime;
 
@@ -11,7 +12,10 @@ import java.time.LocalDateTime;
 public class Record {
     @TableId(type = IdType.AUTO)
     private int id;
+
+
     private LocalDateTime startTimestamp;
+
     private LocalDateTime endTimestamp;
     private String mark = null;
 

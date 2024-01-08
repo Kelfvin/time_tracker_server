@@ -13,11 +13,10 @@ import io.swagger.annotations.ApiOperation;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
-import java.text.ParseException;
+import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 @RestController
@@ -139,47 +138,117 @@ public class RecordController {
 
     @ApiOperation("增加记录")
     @PostMapping("/add")
-    public Result createRecord(@RequestBody Map<String,Object> requestBody) throws ParseException {
+    public Result createRecord(@RequestHeader("Authorization") String token, @RequestBody Record record) {
         /** {
-         "record": {
-         "startTimeStamp": "2023-12-31T16:00:00.000+00:00",
-         "endTimeStamp": "2023-12-31T16:01:00.000+00:00",
+         {
+         "startTimestamp": "2024-01-08T08:15:00.000",
+         "endTimestamp": "2024-01-08T10:20:00.000",
          "mark": "kelf kiss kiss",
-         "userId": 1,
          "eventId": 1
-         },
-         "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJ0ZXN0IiwiaWF0IjoxNzA0MTc0MTU0LCJleHAiOjE3MDQ3Nzg5NTR9.3VL9Z9eeOGUMDVcEGyxiXIZjdvx-kIMAU0wddIsc78c"
          }
          **/
 
-        Map<String,Object> recordData = (Map<String, Object>) requestBody.get("record");
-        Record record = new Record();
+        // 查询用户
+        String username = JwtUtils.getClaimsByToken(token).getSubject();
+        User user = userMapper.selectByUsername(username);
 
-        //获得开始时间
-        // 创建日期时间格式化器并设置时区
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSXXX");
-        formatter = formatter.withZone(TimeZone.getTimeZone("Asia/Shanghai").toZoneId());
-        // 解析开始时间字符串
-        LocalDateTime startTimeStamp = LocalDateTime.parse((String)recordData.get("startTimeStamp"), formatter);
-        record.setStartTimestamp(startTimeStamp);
-
-        //获得结束时间
-        if (recordData.get("endTimeStamp") != null) {
-            LocalDateTime endTimeStamp = LocalDateTime.parse((String) recordData.get("endTimeStamp"), formatter);
-            record.setEndTimestamp(endTimeStamp);
+        // 查询事件
+        Event event = eventMapper.getEventById(record.getEventId());
+        if (event == null || event.getUserId() != user.getId()) {
+            return Result.error().message("非当前登录用户");
         }
 
-        record.setMark((String) recordData.get("mark"));
-        record.setUserId((Integer) recordData.get("userId"));
-        record.setEventId((Integer) recordData.get("eventId"));
-        String token = (String) requestBody.get("token");
+        // 查询与该记录时间有重叠的记录
+        List<Record> records = recordMapper.selectRecordByUserIdAndConflictTimeRange(user.getId(), record.getStartTimestamp(), record.getEndTimestamp());
+        // 遍历每一条记录，如果有重叠的进行处理
+        // 特别的，如果记录是正在进行的记录，如果本次我们添加的记录结束时间大于正在进行的记录的开始时间，那么就报错
+        // 1. 若该记录的开始时间和结束时间都在本次记录的时间范围内，则删除该记录
+        // 2. 若该记录的开始时间在本次记录开始时间之前，结束时间在本次记录结束时间之后，则将该记录的结束时间改为本次记录的开始时间，当然要考虑这个长短是多少，如果长度小于一个范围，就删除该记录
+        // 3. 若该记录的开始时间在本次记录开始时间之后，结束时间在本次记录结束时间之前，则将该记录的开始时间改为本次记录的结束时间，当然要考虑这个长短是多少，如果长度小于一个范围，就删除该记录
 
-        if(record.getUserId() == userMapper.selectByUsername(JwtUtils.getClaimsByToken(token).getSubject()).getId()){
-            recordMapper.addRecord(record);
-            return Result.ok().data("record",record);
+        LocalDateTime newRecordStartTime = record.getStartTimestamp();
+        LocalDateTime newRecordEndTime = record.getEndTimestamp();
+
+        for(var oldRecord : records) {
+            LocalDateTime oldRecordStartTime = oldRecord.getStartTimestamp();
+            LocalDateTime oldRecordEndTime = oldRecord.getEndTimestamp();
+
+
+            // 如果是正在进行的记录，那么就要判断一下
+            if (oldRecordEndTime == null) {
+                return Result.error().message("已经有正在进行的记录");
+            }
+
+            // 如果是已经结束的记录，那么就要判断一下
+
+                // 如果本次我们添加的记录的开始时间和结束时间都在该记录的时间范围内，那么就删除该记录
+            // 改为不早于和不晚于，这样可以避免一些边界问题
+            if(!oldRecordStartTime.isBefore(newRecordStartTime)  && !oldRecordEndTime.isAfter(newRecordEndTime)){
+                recordMapper.deleteRecord(oldRecord.getId());
+                continue;
+            }
+
+
+                // 如果原来的记录的时长覆盖了本次记录的时长，那么就要对原来的记录进行处理，对原来的记录进行分割
+            if (!oldRecordStartTime.isAfter(newRecordStartTime) && !oldRecordEndTime.isBefore(newRecordEndTime)) {
+                // 尝试进行切割，前面的保留，增加一条记录
+                Record recordTemp2 = new Record();
+                // 计算看一下后面的记录的长度是否大于一个范围
+                if (Duration.between(newRecordEndTime, oldRecordEndTime).toSeconds() > 5) {
+                    recordTemp2.setStartTimestamp(newRecordEndTime);
+                    recordTemp2.setEndTimestamp(oldRecordEndTime);
+                    recordTemp2.setEventId(oldRecord.getEventId());
+                    recordTemp2.setUserId(oldRecord.getUserId());
+                    recordMapper.addRecord(recordTemp2);
+                }
+
+                // 看前面的时间范围
+                if (Duration.between(oldRecordStartTime, newRecordStartTime).toSeconds() > 5) {
+                    oldRecord.setEndTimestamp(newRecordStartTime);
+                    recordMapper.updateRecord(oldRecord);
+                } else {
+                    recordMapper.deleteRecord(oldRecord.getId());
+                }
+
+            }
+
+
+
+            // 如果本次我们添加的记录的开始时间在该记录的开始时间之前，结束时间在该记录的结束时间之前
+            // 就把原来的记录的开始时间改为本次记录的结束时间
+                if (!newRecordStartTime.isAfter(oldRecordStartTime) && !newRecordEndTime.isAfter(oldRecordEndTime)) {
+                    if (Duration.between(newRecordEndTime, oldRecordEndTime).toSeconds() < 5) {
+                        recordMapper.deleteRecord(oldRecord.getId());
+                    } else {
+                        oldRecord.setStartTimestamp(newRecordEndTime);
+                        recordMapper.updateRecord(oldRecord);
+                    }
+                    continue;
+                }
+
+                // 如果本次我们添加的记录的开始时间在该记录的开始时间之后，结束时间在该记录的结束时间之后
+            // 就把原来的记录的结束时间改为本次记录的开始时间
+            // 如果更改后长度小于一个范围，就删除该记录
+                if (!newRecordStartTime.isBefore(oldRecordStartTime) && !newRecordEndTime.isBefore(oldRecordEndTime)) {
+                    if ( Duration.between(oldRecordStartTime, newRecordStartTime).toSeconds() < 5) {
+                        recordMapper.deleteRecord(oldRecord.getId());
+                    } else {
+                        oldRecord.setEndTimestamp(newRecordStartTime);
+                        recordMapper.updateRecord(oldRecord);
+                    }
+                }
+
         }
 
-        return Result.error().message("非当前登录用户").data("userId",userMapper.selectByUsername(JwtUtils.getClaimsByToken(token).getSubject()).getId());
+        // 添加记录
+        record.setUserId(user.getId());
+        recordMapper.addRecord(record);
+
+        // 查询事件
+        record.setEvent(eventMapper.getEventById(record.getEventId()));
+
+        return Result.ok().message("添加记录成功").data("record", record);
+
     }
 
     @ApiOperation("根据Token查询记录")
